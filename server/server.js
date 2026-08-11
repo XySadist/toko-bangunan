@@ -45,6 +45,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message || 'Terjadi kesalahan di server' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

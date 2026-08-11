@@ -6,8 +6,9 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// File data.db akan dibuat otomatis di folder /server kalau belum ada.
-const dbPath = path.join(__dirname, '..', 'data.db');
+// Di serverless Vercel, folder utama read-only, jadi gunakan folder /tmp
+const isVercel = process.env.VERCEL;
+const dbPath = isVercel ? path.join('/tmp', 'data.db') : path.join(__dirname, '..', 'data.db');
 const db = new Database(dbPath);
 
 // Aktifkan foreign key constraint (secara default SQLite mematikan ini).
