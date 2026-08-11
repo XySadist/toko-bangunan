@@ -1,0 +1,17 @@
+{
+  "name": "toko-bangunan-server",
+  "version": "1.0.0",
+  "description": "Backend API untuk aplikasi daftar harga & kalkulator pesanan toko bangunan",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "multer": "^2.0.0"
+  }
+}

@@ -1,0 +1,11 @@
+# render.yaml
+# Konfigurasi otomatis untuk deployment di Render.com
+services:
+  - type: web
+    name: toko-bangunan
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3001
