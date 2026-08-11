@@ -105,6 +105,16 @@ export async function getBarang(id) {
   return list.find((b) => String(b.id) === String(id)) || null;
 }
 
+function fileToDataURL(file) {
+  return new Promise((resolve) => {
+    if (!file || !(file instanceof File)) return resolve(null);
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function createBarang(formData) {
   try {
     const res = await fetch(`${BASE}/barang`, { method: 'POST', body: formData });
@@ -117,6 +127,8 @@ export async function createBarang(formData) {
   const merek = formData.get('merek');
   const varianStr = formData.get('varian');
   const varianList = varianStr ? JSON.parse(varianStr) : [];
+  const fotoFile = formData.get('foto');
+  const foto_url = await fileToDataURL(fotoFile);
 
   const list = getLocalData('tb_barang', DEFAULT_BARANG);
   const newId = Date.now();
@@ -125,7 +137,7 @@ export async function createBarang(formData) {
     nama,
     kategori,
     merek: merek || null,
-    foto_url: null,
+    foto_url: foto_url,
     varian_harga: varianList.map((v, i) => ({ id: newId + i + 1, barang_id: newId, ...v }))
   };
   list.push(newBarang);
@@ -147,11 +159,18 @@ export async function updateBarang(id, formData) {
     const merek = formData.get('merek');
     const varianStr = formData.get('varian');
     const varianList = varianStr ? JSON.parse(varianStr) : [];
+    const fotoFile = formData.get('foto');
+    let foto_url = list[idx].foto_url;
+    if (fotoFile && fotoFile instanceof File) {
+      foto_url = await fileToDataURL(fotoFile);
+    }
+
     list[idx] = {
       ...list[idx],
       nama,
       kategori,
       merek,
+      foto_url,
       varian_harga: varianList.map((v, i) => ({ id: Date.now() + i, barang_id: id, ...v }))
     };
     setLocalData('tb_barang', list);
