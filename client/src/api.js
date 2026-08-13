@@ -116,7 +116,20 @@ function fileToDataURL(file) {
 
 export async function createBarang(formData) {
   try {
-    const res = await fetch(`${BASE}/barang`, { method: 'POST', body: formData });
+    // Extract data from FormData dan convert file ke base64
+    const nama = formData.get('nama');
+    const kategori = formData.get('kategori');
+    const merek = formData.get('merek');
+    const varianStr = formData.get('varian');
+    const varianList = varianStr ? JSON.parse(varianStr) : [];
+    const fotoFile = formData.get('foto');
+    const foto_url = await fileToDataURL(fotoFile);
+
+    const res = await fetch(`${BASE}/barang`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nama, kategori, merek, varian: varianList, foto_url }),
+    });
     if (res.ok) return await res.json();
   } catch (e) {}
 
@@ -146,7 +159,22 @@ export async function createBarang(formData) {
 
 export async function updateBarang(id, formData) {
   try {
-    const res = await fetch(`${BASE}/barang/${id}`, { method: 'PUT', body: formData });
+    const nama = formData.get('nama');
+    const kategori = formData.get('kategori');
+    const merek = formData.get('merek');
+    const varianStr = formData.get('varian');
+    const varianList = varianStr ? JSON.parse(varianStr) : [];
+    const fotoFile = formData.get('foto');
+    let foto_url = null;
+    if (fotoFile && fotoFile instanceof File) {
+      foto_url = await fileToDataURL(fotoFile);
+    }
+
+    const res = await fetch(`${BASE}/barang/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nama, kategori, merek, varian: varianList, foto_url }),
+    });
     if (res.ok) return await res.json();
   } catch (e) {}
 
