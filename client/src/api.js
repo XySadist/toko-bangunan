@@ -1,7 +1,8 @@
 // src/api.js
 // Membungkus fetch() ke backend Express, dan menyediakan fallback localStorage jika dipanggil di environment statis (seperti Vercel Demo).
 
-const BASE = '/api';
+// Support environment variable VITE_API_URL (dari Vercel env vars) atau fallback ke localhost
+const BASE = import.meta.env.VITE_API_URL || '/api';
 
 // Sample data awal jika backend offline (Vercel static demo)
 const DEFAULT_BARANG = [
@@ -13,8 +14,8 @@ const DEFAULT_BARANG = [
     foto_url: null,
     varian_harga: [
       { id: 101, barang_id: 1, label_varian: '4 Meter', satuan: 'Batang', harga: 32000 },
-      { id: 102, barang_id: 1, label_varian: '20 mm', satuan: 'mm', harga: 8000 }
-    ]
+      { id: 102, barang_id: 1, label_varian: '20 mm', satuan: 'mm', harga: 8000 },
+    ],
   },
   {
     id: 2,
@@ -24,8 +25,8 @@ const DEFAULT_BARANG = [
     foto_url: null,
     varian_harga: [
       { id: 201, barang_id: 2, label_varian: '1 Kg', satuan: 'Kg', harga: 22000 },
-      { id: 202, barang_id: 2, label_varian: '1/2 Kg', satuan: 'Kg', harga: 11500 }
-    ]
+      { id: 202, barang_id: 2, label_varian: '1/2 Kg', satuan: 'Kg', harga: 11500 },
+    ],
   },
   {
     id: 3,
@@ -33,10 +34,8 @@ const DEFAULT_BARANG = [
     kategori: 'Semen',
     merek: 'Gresik',
     foto_url: null,
-    varian_harga: [
-      { id: 301, barang_id: 3, label_varian: '1 Sak (50 Kg)', satuan: 'Sak', harga: 68000 }
-    ]
-  }
+    varian_harga: [{ id: 301, barang_id: 3, label_varian: '1 Sak (50 Kg)', satuan: 'Sak', harga: 68000 }],
+  },
 ];
 
 function getLocalData(key, defaultVal) {
@@ -138,7 +137,7 @@ export async function createBarang(formData) {
     kategori,
     merek: merek || null,
     foto_url: foto_url,
-    varian_harga: varianList.map((v, i) => ({ id: newId + i + 1, barang_id: newId, ...v }))
+    varian_harga: varianList.map((v, i) => ({ id: newId + i + 1, barang_id: newId, ...v })),
   };
   list.push(newBarang);
   setLocalData('tb_barang', list);
@@ -171,7 +170,7 @@ export async function updateBarang(id, formData) {
       kategori,
       merek,
       foto_url,
-      varian_harga: varianList.map((v, i) => ({ id: Date.now() + i, barang_id: id, ...v }))
+      varian_harga: varianList.map((v, i) => ({ id: Date.now() + i, barang_id: id, ...v })),
     };
     setLocalData('tb_barang', list);
     return list[idx];
@@ -222,7 +221,7 @@ export async function createPesanan(nama_pelanggan) {
     const res = await fetch(`${BASE}/pesanan`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nama_pelanggan })
+      body: JSON.stringify({ nama_pelanggan }),
     });
     if (res.ok) return await res.json();
   } catch (e) {}
@@ -234,7 +233,7 @@ export async function createPesanan(nama_pelanggan) {
     tanggal: new Date().toISOString().split('T')[0],
     status: 'aktif',
     items: [],
-    total: 0
+    total: 0,
   };
   list.unshift(newPesanan);
   setLocalData('tb_pesanan', list);
@@ -246,7 +245,7 @@ export async function addPesananItem(pesananId, { varian_harga_id, jumlah }) {
     const res = await fetch(`${BASE}/pesanan/${pesananId}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ varian_harga_id, jumlah })
+      body: JSON.stringify({ varian_harga_id, jumlah }),
     });
     if (res.ok) return await res.json();
   } catch (e) {}
@@ -279,7 +278,7 @@ export async function addPesananItem(pesananId, { varian_harga_id, jumlah }) {
         satuan_snapshot: selectedVarian.satuan,
         harga_satuan_snapshot: selectedVarian.harga,
         jumlah: Number(jumlah),
-        subtotal
+        subtotal,
       };
       list[pIdx].items.push(newItem);
       list[pIdx].total = list[pIdx].items.reduce((sum, item) => sum + item.subtotal, 0);
@@ -295,7 +294,7 @@ export async function updatePesananItem(pesananId, itemId, jumlah) {
     const res = await fetch(`${BASE}/pesanan/${pesananId}/items/${itemId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jumlah })
+      body: JSON.stringify({ jumlah }),
     });
     if (res.ok) return await res.json();
   } catch (e) {}
